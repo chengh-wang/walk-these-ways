@@ -9,6 +9,7 @@ from params_proto import PrefixProto
 
 from .actor_critic import ActorCritic
 from .rollout_storage import RolloutStorage
+import wandb
 
 
 def class_to_dict(obj) -> dict:
@@ -154,10 +155,12 @@ class Runner:
                     self.alg.process_env_step(rewards[:num_train_envs], dones[:num_train_envs], infos)
 
                     if 'train/episode' in infos:
+                        wandb.log({'train':infos['train/episode']})
                         with logger.Prefix(metrics="train/episode"):
                             logger.store_metrics(**infos['train/episode'])
 
                     if 'eval/episode' in infos:
+                        wandb.log({'eval':infos['eval/episode']})
                         with logger.Prefix(metrics="eval/episode"):
                             logger.store_metrics(**infos['eval/episode'])
 

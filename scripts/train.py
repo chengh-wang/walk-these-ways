@@ -15,6 +15,8 @@ def train_go1(headless=True):
     from go1_gym_learn.ppo_cse.actor_critic import AC_Args
     from go1_gym_learn.ppo_cse.ppo import PPO_Args
     from go1_gym_learn.ppo_cse import RunnerArgs
+    import wandb
+    import datetime
 
     config_go1(Cfg)
 
@@ -204,7 +206,20 @@ def train_go1(headless=True):
     Cfg.commands.binary_phases = True
     Cfg.commands.gaitwise_curricula = True
 
-    env = VelocityTrackingEasyEnv(sim_device='cuda:0', headless=False, cfg=Cfg)
+    project_name = 'IsaacGo1Gym-RL'
+    name_time = str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+    note = 'Debug training, delete anytime'
+
+
+    wandb.init(
+      project=project_name,
+      name='Train-' + name_time,
+      notes=note,
+      config=Cfg
+    )
+
+
+    env = VelocityTrackingEasyEnv(sim_device='cuda:0', headless=True, cfg=Cfg)
 
     # log the experiment parameters
     logger.log_params(AC_Args=vars(AC_Args), PPO_Args=vars(PPO_Args), RunnerArgs=vars(RunnerArgs),
@@ -213,7 +228,7 @@ def train_go1(headless=True):
     env = HistoryWrapper(env)
     gpu_id = 0
     runner = Runner(env, device=f"cuda:{gpu_id}")
-    runner.learn(num_learning_iterations=100000, init_at_random_ep_len=True, eval_freq=100)
+    runner.learn(num_learning_iterations=10000, init_at_random_ep_len=True, eval_freq=100)
 
 
 if __name__ == '__main__':
